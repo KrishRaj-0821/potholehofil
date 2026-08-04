@@ -427,7 +427,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
               Running 4-Agent AI Pipeline...
             </h3>
             <p className="text-xs text-orange-400 font-semibold mt-2 animate-pulse">
-              1. Vision Agent 👁️ → 2. Meme Roaster 🎭 → 3. Canvas Agent 🎨 → 4. Supabase Sync ⚡
+              1. Vision Agent 👁️ → 2. Meme Roaster 🎭 → 3. Canvas Agent 🎨 → 4. Firebase Sync ⚡
             </p>
           </div>
         )}

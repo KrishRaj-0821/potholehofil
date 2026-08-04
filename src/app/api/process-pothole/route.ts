@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       comments: [],
     };
 
-    // 5. Agent 4: Sync to Database (Firebase Cloud Firestore + Storage & Supabase)
+    // 5. Agent 4: Sync to Firebase Cloud Firestore & Storage
     await syncPostToDatabase(newPost);
 
     return NextResponse.json({
