@@ -53,7 +53,7 @@ export const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
 
         {/* Meme Roast Summary Header */}
         <div className="p-3 bg-slate-950/70 border-b border-gray-800 text-xs text-orange-300 font-semibold italic">
-          "{post.memeCaption}"
+          &quot;{post.memeCaption}&quot;
         </div>
 
         {/* Comments List */}

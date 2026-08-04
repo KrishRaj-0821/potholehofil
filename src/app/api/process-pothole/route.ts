@@ -9,6 +9,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { imageBase64, lat, lng } = body;
 
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Missing or invalid imageBase64 in request body.' },
+        { status: 400 }
+      );
+    }
+
     const userIp = req.headers.get('x-forwarded-for') || '127.0.0.1';
 
     // 1. Agent 4: Geo-Security & Rate Limit Verification
@@ -78,7 +85,7 @@ export async function POST(req: NextRequest) {
       vision: visionResult,
       roast,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Process Pothole API Error:', err);
     return NextResponse.json(
       { success: false, error: 'Internal pipeline error processing pothole scan.' },

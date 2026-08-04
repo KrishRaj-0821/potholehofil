@@ -69,7 +69,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         {/* Preview snippet */}
         <div className="p-3 rounded-xl bg-slate-950 border border-white/10 text-xs text-gray-200">
           <p className="font-bold text-orange-400 mb-1">📍 {post.location.name}</p>
-          <p className="italic">"{post.memeCaption}"</p>
+          <p className="italic">&quot;{post.memeCaption}&quot;</p>
         </div>
 
         {/* Share Action Grid */}

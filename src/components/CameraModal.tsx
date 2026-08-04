@@ -62,6 +62,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
     return () => {
       stopCamera();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, facingMode]);
 
   const resetState = () => {
