@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runVisionVerificationAgent } from '@/lib/agents/visionAgent';
 import { runLocalizedRoastingAgent } from '@/lib/agents/roastAgent';
-import { enforceGeoSecurityAndRateLimit, syncPostToSupabase } from '@/lib/agents/geoSecurityAgent';
+import { enforceGeoSecurityAndRateLimit, syncPostToDatabase } from '@/lib/agents/geoSecurityAgent';
 import { PotholePost } from '@/types';
 
 export async function POST(req: NextRequest) {
@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
       comments: [],
     };
 
-    // 5. Agent 4: Supabase Sync
-    await syncPostToSupabase(newPost);
+    // 5. Agent 4: Sync to Database (Firebase Cloud Firestore + Storage & Supabase)
+    await syncPostToDatabase(newPost);
 
     return NextResponse.json({
       success: true,

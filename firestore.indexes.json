@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "pothole_posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "createdAtServer",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

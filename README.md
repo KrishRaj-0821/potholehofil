@@ -14,8 +14,8 @@ PotholeHofile is a location-gated, zero-login, AI-powered civic platform designe
   1. **Vision Verification Agent:** Google Gemini 1.5 Flash (Pothole detection & dimension estimation)
   2. **Localized Roasting Agent:** Localized Hindi/Bhojpuri meme caption generator (Kasba dialect)
   3. **Canvas Rendering Agent:** Client-side HTML5 canvas overlay superimposition
-  4. **Geo-Security & Sync Agent:** Haversine distance geofencing (Kasba 854330 boundary) & Supabase sync
-- **Database:** Supabase (PostgreSQL + PostGIS spatial indexing)
+  4. **Geo-Security & Sync Agent:** Haversine distance geofencing (Kasba 854330 boundary) & Firebase sync
+- **Database & Storage:** **Firebase Cloud Firestore** (Real-time database) + **Firebase Storage** (Meme image hosting) + `geofire-common` spatial hashing
 - **Rate-Limiting:** Zero-login IP hash verification
 
 ---
@@ -30,25 +30,34 @@ Copy `.env.example` to `.env.local`:
 cp .env.example .env.local
 ```
 
-Fill in your service API keys:
+Fill in your Firebase & Gemini API keys:
 
 ```env
-# Google Gemini API Key
+# 1. Google Gemini 1.5 Flash Vision API Key
 GEMINI_API_KEY=your_gemini_api_key
 
-# Supabase Credentials
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# 2. Firebase App Credentials
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 ---
 
-### 2. Database Setup (Supabase)
+### 2. Firebase Deployment & Security Rules
 
-1. Open your project on [Supabase Dashboard](https://supabase.com).
-2. Go to **SQL Editor** -> **New Query**.
-3. Copy and paste the contents of `supabase/schema.sql`.
-4. Click **Run**.
+To deploy Firestore security rules and Storage rules to Firebase:
+
+```bash
+# Login to Firebase
+npx firebase login
+
+# Deploy rules and indexes
+npx firebase deploy --only firestore,storage
+```
 
 ---
 
@@ -68,17 +77,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 4. Deploying Live
 
-#### Option A: Vercel (Recommended)
+#### Option A: Vercel (Recommended for Next.js)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
 ```bash
 npx vercel
 ```
 
-#### Option B: Docker / Cloud Run
+#### Option B: Firebase Hosting
 
 ```bash
-docker build -t potholehofil .
+npx firebase deploy
 ```
 
 ---

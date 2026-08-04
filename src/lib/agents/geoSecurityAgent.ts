@@ -1,5 +1,6 @@
 import { verifyKasbaGeofence } from '@/lib/geoUtils';
 import { supabase } from '@/lib/supabaseClient';
+import { syncPostToFirestore } from '@/lib/firebaseClient';
 import { PotholePost } from '@/types';
 
 // In-Memory IP & Rate Limiting Cache
@@ -81,3 +82,16 @@ export async function syncPostToSupabase(post: PotholePost): Promise<boolean> {
     return false;
   }
 }
+
+export async function syncPostToFirebase(post: PotholePost): Promise<boolean> {
+  return await syncPostToFirestore(post);
+}
+
+export async function syncPostToDatabase(post: PotholePost): Promise<void> {
+  // Sync in parallel to both Firebase and Supabase
+  await Promise.allSettled([
+    syncPostToFirebase(post),
+    syncPostToSupabase(post),
+  ]);
+}
+
