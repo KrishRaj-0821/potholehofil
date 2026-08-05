@@ -188,7 +188,7 @@ export const ReelCard: React.FC<ReelCardProps> = ({
               <span>Kasba AI Meme Roast</span>
             </div>
             <p className="text-base font-extrabold text-white leading-snug tracking-tight drop-shadow">
-              "{post.memeCaption}"
+              &quot;{post.memeCaption}&quot;
             </p>
             {post.memeSubtext && (
               <p className="text-xs text-gray-300 font-medium italic leading-relaxed">
