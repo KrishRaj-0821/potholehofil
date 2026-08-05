@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Copy, Check, Share2, MessageSquare, Twitter, Download } from 'lucide-react';
+import { X, Copy, Check, Share2, MessageSquare } from 'lucide-react';
 import { PotholePost } from '@/types';
 
 interface ShareModalProps {
