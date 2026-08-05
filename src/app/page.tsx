@@ -10,7 +10,6 @@ import { ShareModal } from '@/components/ShareModal';
 import { LocationModal } from '@/components/LocationModal';
 import { PotholePost } from '@/types';
 import { INITIAL_POSTS } from '@/lib/mockData';
-import { subscribeToFirestorePosts } from '@/lib/firebaseClient';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('trending');
@@ -22,7 +21,7 @@ export default function Home() {
   const [activeCommentPost, setActiveCommentPost] = useState<PotholePost | null>(null);
   const [activeSharePost, setActiveSharePost] = useState<PotholePost | null>(null);
 
-  // Load state from localStorage on client mount & listen to Firebase Firestore
+  // Load state from localStorage on client mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('pothole_kasba_posts');
@@ -32,18 +31,6 @@ export default function Home() {
     } catch (e) {
       console.warn('Failed to load local storage posts', e);
     }
-
-    // Real-time Firestore snapshot listener
-    const unsubscribe = subscribeToFirestorePosts((remotePosts) => {
-      setPosts((prev) => {
-        // Merge remote posts prioritizing new ones
-        const existingIds = new Set(remotePosts.map((p) => p.id));
-        const localOnly = prev.filter((p) => !existingIds.has(p.id));
-        return [...remotePosts, ...localOnly];
-      });
-    });
-
-    return () => unsubscribe();
   }, []);
 
   // Sync to localStorage

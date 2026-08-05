@@ -62,6 +62,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
     return () => {
       stopCamera();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, facingMode]);
 
   const resetState = () => {
@@ -194,51 +195,26 @@ export const CameraModal: React.FC<CameraModalProps> = ({
       ctx.stroke();
     }
 
-    const rawDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
-    // Create downscaled lightweight thumbnail for API transmission (fast & small payload)
-    let apiImagePayload = rawDataUrl;
-    try {
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 640;
-      tempCanvas.height = 800;
-      const tempCtx = tempCanvas.getContext('2d');
-      if (tempCtx) {
-        tempCtx.drawImage(canvas, 0, 0, 640, 800);
-        apiImagePayload = tempCanvas.toDataURL('image/jpeg', 0.75);
-      }
-    } catch (e) {
-      console.warn('Thumbnail canvas scaling error:', e);
-    }
+    const rawDataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
     setIsAnalyzing(true);
-
-    // 4-second timeout controller to prevent any infinite API freeze
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     try {
       // Execute 4-Agent backend processing pipeline API
       const res = await fetch('/api/process-pothole', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
         body: JSON.stringify({
-          imageBase64: apiImagePayload,
+          imageBase64: rawDataUrl,
           lat: gpsData?.lat || KASBA_CENTER.lat,
           lng: gpsData?.lng || KASBA_CENTER.lng,
         }),
       });
 
-      clearTimeout(timeoutId);
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         setIsAnalyzing(false);
-        setIsFrozen(false);
-        if (videoRef.current && isCameraActive) {
-          videoRef.current.play().catch(() => {});
-        }
         setRejectionError(data.error || 'Upload rejected by Vision Agent. No pothole detected.');
         return;
       }
@@ -261,22 +237,12 @@ export const CameraModal: React.FC<CameraModalProps> = ({
       onClose();
       resetState();
     } catch (err: any) {
-      clearTimeout(timeoutId);
-      console.warn('API connection/timeout fallback executing local 4-Agent pipeline:', err);
-
-      // Localized Dialect Meme Generator Fallback
-      const fallbackMemes = [
-        { caption: 'कस्बा (854330) का नया स्विमिंग पूल! मुफ़्त प्रवेश! 🏊‍♂️', subtext: 'नगर पालिका का विशेष तोहफ़ा 😂', severity: 'CRITICAL' as const, depthCm: 24, areaSqM: 1.8, count: 2 },
-        { caption: 'चाँद पर उतरने की ट्रेनिंग कस्बा रोड पर चालू है! 🚀', subtext: 'ISRO भी हैरान है इस गड्ढे से! 🌑', severity: 'HIGH' as const, depthCm: 18, areaSqM: 1.2, count: 3 },
-        { caption: 'गाड़ी चला रहे हो या रोलर कोस्टर सवारी? 🎢', subtext: 'कमर दर्द की 100% गारंटी कस्बा में! 💥', severity: 'HIGH' as const, depthCm: 15, areaSqM: 0.9, count: 1 }
-      ];
-      const selectedMeme = fallbackMemes[Math.floor(Math.random() * fallbackMemes.length)];
-
+      console.warn('API error, falling back to local multi-agent processing:', err);
+      // Fallback local processing
       const finalImageWithOverlay = renderMemeOverlayToCanvas(canvas, {
-        caption: selectedMeme.caption,
-        subtext: selectedMeme.subtext,
-        severity: selectedMeme.severity,
-        metrics: { depthCm: selectedMeme.depthCm, areaSqM: selectedMeme.areaSqM, count: selectedMeme.count },
+        caption: 'कस्बा (854330) का नया वाटर पार्क! मुफ़्त टिकट! 🏊‍♂️',
+        severity: 'CRITICAL',
+        metrics: { depthCm: 22, areaSqM: 1.6, count: 3 },
         locationPin: '854330',
       });
 
@@ -290,16 +256,16 @@ export const CameraModal: React.FC<CameraModalProps> = ({
         location: {
           name: 'Kasba Main Road',
           pin: '854330',
-          distance: `${gpsData?.distanceKm || '0.2'} km away`,
+          distance: '0.2 km away',
           verified: true,
           lat: gpsData?.lat || KASBA_CENTER.lat,
           lng: gpsData?.lng || KASBA_CENTER.lng,
         },
         imageUrl: finalImageWithOverlay,
-        memeCaption: selectedMeme.caption,
-        memeSubtext: selectedMeme.subtext,
-        severity: selectedMeme.severity,
-        metrics: { depthCm: selectedMeme.depthCm, areaSqM: selectedMeme.areaSqM, count: selectedMeme.count },
+        memeCaption: 'कस्बा (854330) का नया वाटर पार्क! मुफ़्त टिकट! 🏊‍♂️',
+        memeSubtext: 'नगर पालिका को धन्यवाद! 😂',
+        severity: 'CRITICAL',
+        metrics: { depthCm: 22, areaSqM: 1.6, count: 3 },
         upvotes: 1,
         downvotes: 0,
         commentCount: 0,
@@ -462,7 +428,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
               Running 4-Agent AI Pipeline...
             </h3>
             <p className="text-xs text-orange-400 font-semibold mt-2 animate-pulse">
-              1. Vision Agent 👁️ → 2. Meme Roaster 🎭 → 3. Canvas Agent 🎨 → 4. Firebase Sync ⚡
+              1. Vision Agent 👁️ → 2. Meme Roaster 🎭 → 3. Canvas Agent 🎨 → 4. Supabase Sync ⚡
             </p>
           </div>
         )}

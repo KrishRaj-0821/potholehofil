@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runVisionVerificationAgent } from '@/lib/agents/visionAgent';
 import { runLocalizedRoastingAgent } from '@/lib/agents/roastAgent';
-import { enforceGeoSecurityAndRateLimit, syncPostToDatabase } from '@/lib/agents/geoSecurityAgent';
+import { enforceGeoSecurityAndRateLimit, syncPostToSupabase } from '@/lib/agents/geoSecurityAgent';
 import { PotholePost } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { imageBase64, lat, lng } = body;
+
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Missing or invalid imageBase64 in request body.' },
+        { status: 400 }
+      );
+    }
 
     const userIp = req.headers.get('x-forwarded-for') || '127.0.0.1';
 
@@ -69,8 +76,8 @@ export async function POST(req: NextRequest) {
       comments: [],
     };
 
-    // 5. Agent 4: Sync to Firebase Cloud Firestore & Storage
-    await syncPostToDatabase(newPost);
+    // 5. Agent 4: Supabase Sync
+    await syncPostToSupabase(newPost);
 
     return NextResponse.json({
       success: true,
@@ -78,7 +85,7 @@ export async function POST(req: NextRequest) {
       vision: visionResult,
       roast,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Process Pothole API Error:', err);
     return NextResponse.json(
       { success: false, error: 'Internal pipeline error processing pothole scan.' },

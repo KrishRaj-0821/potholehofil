@@ -1,5 +1,5 @@
 import { verifyKasbaGeofence } from '@/lib/geoUtils';
-import { syncPostToFirestore } from '@/lib/firebaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { PotholePost } from '@/types';
 
 // In-Memory IP & Rate Limiting Cache
@@ -47,11 +47,37 @@ export function enforceGeoSecurityAndRateLimit(
   };
 }
 
-export async function syncPostToFirebase(post: PotholePost): Promise<boolean> {
-  return await syncPostToFirestore(post);
-}
+export async function syncPostToSupabase(post: PotholePost): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('pothole_posts').insert([
+      {
+        id: post.id,
+        author_name: post.author.name,
+        author_handle: post.author.handle,
+        author_avatar: post.author.avatar,
+        location_name: post.location.name,
+        pin: post.location.pin,
+        lat: post.location.lat || 25.8452,
+        lng: post.location.lng || 87.5341,
+        image_url: post.imageUrl,
+        meme_caption: post.memeCaption,
+        meme_subtext: post.memeSubtext,
+        severity: post.severity,
+        depth_cm: post.metrics.depthCm,
+        area_sqm: post.metrics.areaSqM,
+        pothole_count: post.metrics.count,
+        upvotes: post.upvotes,
+        downvotes: post.downvotes,
+      },
+    ]);
 
-export async function syncPostToDatabase(post: PotholePost): Promise<boolean> {
-  // Sync to Firebase Cloud Firestore & Storage
-  return await syncPostToFirebase(post);
+    if (error) {
+      console.warn('Supabase sync notice (using local storage fallback):', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase connection fallback:', err);
+    return false;
+  }
 }

@@ -32,5 +32,4 @@ next-env.d.ts
 # IDE / OS
 .DS_Store
 *.pem
-
-.vercel
+dev_server.log
