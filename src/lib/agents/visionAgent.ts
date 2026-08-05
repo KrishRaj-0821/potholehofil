@@ -14,15 +14,15 @@ export interface VisionAnalysisResult {
 
 const API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
+// Cache the model instance to avoid repeated initialization overhead
+const model = API_KEY ? new GoogleGenerativeAI(API_KEY).getGenerativeModel({ model: 'gemini-1.5-flash' }) : null;
+
 export async function runVisionVerificationAgent(
   base64Image: string
 ): Promise<VisionAnalysisResult> {
   // If Gemini API Key is provided, use Google Generative AI Multimodal Model
-  if (API_KEY) {
+  if (model) {
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
       const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
 
       const prompt = `You are a civic road inspector AI agent for Kasba (PIN: 854330).
